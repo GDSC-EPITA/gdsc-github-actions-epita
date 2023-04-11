@@ -1,0 +1,114 @@
+name: React CI
+# Specifies the trigger for this workflow. This example uses the push event, so a workflow run is triggered every time someone pushes a change to the repository or merges a pull request in main and master.
+on:
+  push:
+    branches:
+      - "main"
+      - "master"
+      
+  workflow_dispatch:
+# Groups together all the jobs that run in this workflow.  
+jobs:
+# Defines a job named setup. The child keys will define properties of the job.
+  setup:
+  # Configures the job to run on the latest version of an Ubuntu Linux runner (hosted by github)
+    runs-on: ubuntu-latest
+    # A matrix strategy lets you use variables in a single job definition to automatically create multiple job runs that are based on the combinations of the variables.
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x]
+    # Groups together all the steps that run in the setup job. Each item nested under this section is a separate action or shell script.
+    steps:
+    # The uses keyword specifies that this step will run v3 of the actions/checkout action. This is an action that checks out your repository onto the runner,
+      - uses: actions/checkout@v3
+      # This step uses the actions/setup-node@v3 action to install the specified version of the Node.js. This puts both the node and npm commands in your PATH.
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: modules-${{ hashFiles('package-lock.json') }}
+      
+      # The run keyword tells the job to execute a command on the runner. In this case, you are using npm ci which is equivalent to to npm install for installing depencies in a CI environment.
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci --ignore-scripts
+        
+      - name: build 
+        run: npm run build --if-present
+        
+      # Upload a build artifcat that can be used by subsequent workflow steps
+      - name: Share artifact inside workflow
+        uses: actions/upload-artifact@v1
+        with:
+          name: react-github-actions-build
+          path: build
+# linting job
+  lint:
+    runs-on: ubuntu-latest
+    # Needs the last job to be finished before starting this one
+    needs: setup
+    steps:       
+      - uses: actions/checkout@v2
+      - name: Lint & fix  
+        run: npx standard -v --fix
+
+          
+# codeQL job
+  codeql:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Install dependencies
+        run: |
+            wget -q https://github.com/github/codeql-cli-binaries/releases/download/v2.12.3/codeql-linux64.zip
+            unzip codeql-linux64.zip
+              
+      - name: CodeQL for js  
+        run: |
+           ./codeql/codeql pack download codeql/javascript-queries
+           ./codeql/./codeql database create -l javascript ./db -s src/
+            
+      - name: CodeQL analysis 
+        run: ./codeql/./codeql database analyze --format=CSV --output=output.csv db
+ 
+ # whispers job
+  whispers:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v2    
+      - name: Use whispers in docker
+        uses: ./WhispersModule/
+            
+# deploy job
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [whispers, codeql]
+    steps:
+    
+      # Download previously shared build
+      - name: Get artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: react-github-actions-build
+          
+      # Set the credentials from repository settings/secrets
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'eu-central-1'
+          
+      # Copy the files from build folder to the S3 bucket
+      - name: Deploy to S3
+        run: aws s3 sync . s3://github-action-demo-gdsc --acl public-read
+        working-directory: react-github-actions-build

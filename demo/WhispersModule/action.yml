@@ -1,0 +1,6 @@
+name: "Whispers"
+description: 'Simple whispers checking for no leaked secrets'
+author: 'Epita GDSC <gdsc.epita@gmail.com>'
+runs:
+  using: docker
+  image: Dockerfile
