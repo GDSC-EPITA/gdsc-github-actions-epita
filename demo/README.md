@@ -1,8 +1,5 @@
 # Getting Started with Github Actions
 
-Read the Github tutorial to understand the basic syntax and usages of github actions:  
-https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
-
 This example tutorial shows three big ways of running jobs in github actions
 
 ## Using another github action
