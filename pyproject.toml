@@ -1,7 +1,7 @@
 [project]
 # Project name for pypi
 # $ pip install gh_action_gdsc_OWNER
-name = "gh_action_gdsc_alex"  # Required
+name = "gh_action_gdsc_OWNER"  # Required
 version = "1.0.0"  # Required
 description = "A sample python github action project from GDSC EPITA"  # Optional        
 readme = "README.md" # Optional
@@ -18,8 +18,8 @@ test = ["coverage"]
 
 [project.urls]  # Optional
 "Homepage" = "https://gdsc.community.dev/epita/"
-"Bug Reports" = "https://github.com/alexandrediasldev/fulltest/issues"
-"Source" = "https://github.com/alexandrediasldev/fulltest/"
+"Bug Reports" = "https://github.com/OWNER/REPOSITORY/issues"
+"Source" = "https://github.com/OWNER/fulltest/"
 
 # The following would provide a command line executable called `example`
 # which executes the function `main` from this package when invoked.

@@ -1,8 +1,3 @@
-#####################################
-#      Automate your workflow       #
-#   GitHub Universe Workshop 2020   #
-#####################################
-
 # This workflow will run CI on your codebase, label your PR, and comment on the result
 
 name: Test Label and Comment
