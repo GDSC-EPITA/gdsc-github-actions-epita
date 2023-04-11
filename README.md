@@ -1,2 +1,3 @@
-# gdsc-github-actions-epita
-Coming soon
+# GDSC Github Actions tutorial
+
+Coming Soon

@@ -1,0 +1,34 @@
+[project]
+# Project name for pypi
+# $ pip install gh_action_gdsc_OWNER
+name = "gh_action_gdsc_alex"  # Required
+version = "1.0.0"  # Required
+description = "A sample python github action project from GDSC EPITA"  # Optional        
+readme = "README.md" # Optional
+requires-python = ">=3.7"
+license = {file = "LICENSE.txt"}
+keywords = ["github-action", "tutorial", "GDSC", "GDSC EPITA"]  # Optional
+authors = [
+  {name = "GDSC EPITA", email = "author@example.com" } # Optional
+]
+
+[project.optional-dependencies] # Optional
+dev = ["check-manifest"]
+test = ["coverage"]
+
+[project.urls]  # Optional
+"Homepage" = "https://gdsc.community.dev/epita/"
+"Bug Reports" = "https://github.com/alexandrediasldev/fulltest/issues"
+"Source" = "https://github.com/alexandrediasldev/fulltest/"
+
+# The following would provide a command line executable called `example`
+# which executes the function `main` from this package when invoked.
+[project.scripts]  # Optional
+example = "example:main"
+
+[tool.setuptools]
+package-data = {"example" = ["*.dat"]}
+
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
